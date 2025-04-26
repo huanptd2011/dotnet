@@ -1,0 +1,157 @@
+@model List<huan.Models.Article>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý Bài NCKH";
+
+    var realArticles = Model ?? new List<huan.Models.Article>();
+
+    var articlesToDisplay = realArticles
+        .OrderBy(a => a.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? 0 :
+                      a.Status.Equals("Approved", StringComparison.OrdinalIgnoreCase) ? 1 : 2)
+        .ThenByDescending(a => a.SubmissionDate)
+        .ToList();
+}
+
+<div class="main-content">
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-dark font-weight-bold">Danh sách bài NCKH</h2>
+                    <span class="text-muted">Tổng số: <strong>@articlesToDisplay.Count</strong> bài</span>
+                </div>
+
+                @if (articlesToDisplay.Any())
+                {
+                    <div class="card shadow border-0 rounded-lg">
+                        <div class="card-header bg-light py-3">
+                            <h5 class="mb-0 text-dark">Danh sách bài viết</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-borderless align-middle mb-0">
+                                    <thead class="bg-dark text-white">
+                                        <tr>
+                                            <th class="ps-4">Tiêu đề</th>
+                                            <th>Tóm tắt</th>
+                                            <th>Trạng thái</th>
+                                            <th>Ngày nộp</th>
+                                            <th class="text-end pe-4">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var article in articlesToDisplay)
+                                        {
+                                            var isSample = article.Id < 0;
+                                            var statusClass = article.Status.ToLower() switch
+                                            {
+                                                "pending" => "warning",
+                                                "approved" => "success",
+                                                "rejected" => "danger",
+                                                _ => "secondary"
+                                            };
+
+                                            <tr class="border-bottom">
+                                                <td class="ps-4">
+                                                    <strong class="text-dark">@article.Title</strong>
+                                                    @if (isSample)
+                                                    {
+                                                        <span class="badge bg-info ms-2">Sample</span>
+                                                    }
+                                                </td>
+                                                <td class="text-muted">@article.Summary</td>
+                                                <td>
+                                                    <span class="badge bg-@statusClass text-uppercase">@article.Status</span>
+                                                </td>
+                                                <td class="text-muted">@article.SubmissionDate.ToString("dd/MM/yyyy")</td>
+                                                <td class="text-end pe-4">
+                                                    <a asp-controller="Article" asp-action="Details" asp-area="Admin"
+                                                       asp-route-id="@article.Id" class="btn btn-sm btn-outline-primary me-1 rounded-pill">
+                                                        <i class="bi bi-eye"></i> Xem
+                                                    </a>
+
+                                                    @if (!isSample && article.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        <form method="post" asp-action="Approve" asp-route-id="@article.Id"
+                                                              class="d-inline" onsubmit="return confirm('Bạn có chắc muốn duyệt bài này?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-sm btn-outline-success me-1 rounded-pill">
+                                                                <i class="bi bi-check-circle"></i> Duyệt
+                                                            </button>
+                                                        </form>
+                                                        <form method="post" asp-action="Reject" asp-route-id="@article.Id"
+                                                              class="d-inline" onsubmit="return confirm('Bạn có chắc muốn từ chối bài này?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                                                                <i class="bi bi-x-circle"></i> Từ chối
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info mt-4 rounded-lg shadow-sm">
+                        <strong>Không có bài nào được tìm thấy.</strong>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+  <style>
+    .main-content {
+        margin-left: 250px; /* Adjust this value based on the sidebar width in _AdminLayout.cshtml */
+        transition: margin-left 0.3s ease;
+    }
+
+    @@media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+        }
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.3s ease;
+    }
+@* 
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.4em 0.8em;
+        border-radius: 12px;
+    }
+
+    .btn-sm {
+        font-size: 0.85rem;
+        padding: 0.3rem 0.8rem;
+    }
+
+    .rounded-pill {
+        border-radius: 50rem !important;
+    } *@
+
+    .card {
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        border-bottom: 1px solid #e9ecef;
+    }
+    </style>

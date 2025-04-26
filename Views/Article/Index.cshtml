@@ -1,0 +1,154 @@
+@model List<huan.Models.Article>
+@inject huan.Data.ApplicationDbContext _context
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "MyArticles";
+   
+    
+    // Xử lý model null
+    var realArticles = Model ?? new List<huan.Models.Article>();
+
+    // Sample articles
+        var articlesToDisplay = realArticles.OrderBy(a => a.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? 0 :
+    a.Status.Equals("Approved", StringComparison.OrdinalIgnoreCase) ? 1 : 2) .ThenByDescending(a => a.SubmissionDate) .ToList();
+}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a asp-controller="User" asp-action="Logout" class="btn btn-danger">Đăng xuất</a>
+            <h1>Bài viết của tôi </h1>
+            <a asp-action="Create" class="btn btn-success">Tạo bài mới</a>
+        </div>
+        <div>Số bài viết: @articlesToDisplay.Count</div>
+
+        @if (articlesToDisplay.Any())
+        {
+            <div class="card shadow">
+                <div class="card-body p-0">
+                    <table class="table table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Tiêu đề</th>
+                                <th>Mô tả</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                                <th>Hoạt động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var article in articlesToDisplay)
+                            {
+                                var isSample = article.Id < 0;
+                                var statusClass = article.Status.ToLower() switch
+                                {
+                                    "pending" => "warning",
+                                    "approved" => "success",
+                                    "rejected" => "danger",
+                                    _ => "secondary"
+                                };
+                                
+                                <tr>
+                                    <td>
+                                        @article.Title
+                                        @if (isSample)
+                                        {
+                                            <span class="badge bg-info">Giống nhau</span>
+                                        }
+                                    </td>
+                                    <td>@article.Summary</td>
+                                    <td>
+                                        <span class="badge bg-@statusClass">
+                                            @article.Status
+                                        </span>
+                                    </td>
+                                    <td>@article.SubmissionDate.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@article.Id"
+                                            class="btn btn-sm btn-outline-primary me-1 rounded-pill">
+                                            <i class="bi bi-eye"></i> Xem
+                                        </a>
+                                        
+                                        @if (!isSample && article.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@article.Id"
+                                                class="btn btn-sm btn-outline-success me-1 rounded-pill">
+                                                <i class="bi bi-check-circle "></i> Chỉnh sửa 
+                                            </a>
+                                                   <form method="post" asp-action="Delete" 
+                                                  class="d-inline" 
+                                                  onsubmit="return confirm('Bạn có muốn xóa bài viết?');">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@article.Id" />
+                                                <button type="submit" 
+                                                        class="btn btn-sm btn-outline-danger rounded-pill">
+                                                    <i class="bi bi-x-circle"></i> Xóa 
+                                                </button>
+                                                
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <h4 class="alert-heading">Không tìm thấy bài viết. </h4>
+                <p>Tạo bài viết đầu tiên.</p>
+                <a asp-action="Create" class="btn btn-success">Tạo bài viết mới</a>
+            </div>
+        }
+    </div>
+</div>
+<style>
+  <style>
+    .main-content {
+        margin-left: 250px; /* Adjust this value based on the sidebar width in _AdminLayout.cshtml */
+        transition: margin-left 0.3s ease;
+    }
+
+    @@media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+        }
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.3s ease;
+    }
+@* 
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.4em 0.8em;
+        border-radius: 12px;
+    }
+
+    .btn-sm {
+        font-size: 0.85rem;
+        padding: 0.3rem 0.8rem;
+    }
+
+    .rounded-pill {
+        border-radius: 50rem !important;
+    } *@
+
+    .card {
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        border-bottom: 1px solid #e9ecef;
+    }
+    </style>

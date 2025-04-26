@@ -1,0 +1,52 @@
+
+
+@model huan.Models.Article
+@inject huan.Data.ApplicationDbContext _context
+
+
+@{
+    Layout = "~/Views/Shared/_ViewLayout.cshtml";
+    ViewData["Title"] = "Chi tiết bài viết";
+    var role = Context.Session.GetString("Role");
+    var isAdmin = role == "Admin";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Chi tiết bài viết</h1>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">@Model.Title</h5>
+
+                @if (isAdmin)
+                {
+                    <p class="card-text"><strong>Tác giả:</strong> @Model.Author?.FullName</p>
+                    <p class="card-text"><strong>Email:</strong> @Model.Author?.Email</p>
+                }
+
+                <p class="card-text"><strong>Mô tả:</strong> @Model.Summary</p>
+                <p class="card-text"><strong>Nội dung:</strong></p>
+                <p class="card-text">@Html.Raw(Model.Content)</p>
+
+                <p class="card-text"><strong>Trạng thái:</strong> 
+                    <span class="badge @((Model.Status == "Pending") ? "bg-warning" : (Model.Status == "Approved") ? "bg-success" : "bg-danger")">
+                        @Model.Status
+                    </span>
+                </p>
+
+                <p class="card-text"><strong>Ngày tạo:</strong> @Model.SubmissionDate.ToString("MM/dd/yyyy")</p>
+                <p class="card-text"><strong>Đề tài:</strong> @(_context.Topics.FirstOrDefault(t => t.Id == Model.TopicId)?.Name ?? "N/A")</p>
+
+                @if (isAdmin)
+                {
+                    <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                }
+                else
+                {
+                    <a asp-controller="Article" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,72 @@
+@model dynamic
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Thống kê bài viết";
+}
+
+<div class="main-content">
+    <div class="container-fluid py-4">
+        <div class="row">
+            <!-- Thống kê số lượng bài viết theo trạng thái -->
+            <div class="col-md-4">
+                <div class="card shadow border-0 rounded-lg">
+                    <div class="card-header bg-light py-3">
+                        <h5 class="mb-0 text-dark">Thống kê theo trạng thái</h5>
+                    </div>
+                    <div class="card-body p-3">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>Đã duyệt:</strong> @Model.ArticlesByStatus.Approved
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Đang chờ duyệt:</strong> @Model.ArticlesByStatus.Pending
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Bị từ chối:</strong> @Model.ArticlesByStatus.Rejected
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thống kê số lượng bài viết theo tác giả -->
+            <div class="col-md-4">
+                <div class="card shadow border-0 rounded-lg">
+                    <div class="card-header bg-light py-3">
+                        <h5 class="mb-0 text-dark">Số lượng bài viết theo tác giả</h5>
+                    </div>
+                    <div class="card-body p-3">
+                        <ul class="list-group">
+                            @foreach (var author in Model.ArticlesByAuthor)
+                            {
+                                <li class="list-group-item">
+                                    <strong>@author.Author</strong>: @author.Count bài viết
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thống kê số lượng bài viết theo chủ đề -->
+            <div class="col-md-4">
+                <div class="card shadow border-0 rounded-lg">
+                    <div class="card-header bg-light py-3">
+                        <h5 class="mb-0 text-dark">Số lượng bài viết theo chủ đề</h5>
+                    </div>
+                    <div class="card-body p-3">
+                        <ul class="list-group">
+                            @foreach (var topic in Model.ArticlesByTopic)
+                            {
+                                <li class="list-group-item">
+                                    <strong>Chủ đề @topic.TopicId</strong>: @topic.Count bài viết
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

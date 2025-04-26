@@ -1,0 +1,32 @@
+@model huan.Models.Article
+
+<h1>Chỉnh sửa bài viết</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Summary"></label>
+        <textarea asp-for="Summary" class="form-control"></textarea>
+        <span asp-validation-for="Summary" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Content"></label>
+        <textarea asp-for="Content" class="form-control"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+<select asp-for="TopicId" class="form-control" asp-items="@(ViewBag.Topics != null ? new SelectList(ViewBag.Topics, "Id", "Name") : new SelectList(new List<object>(), "Id", "Name"))">
+    <option value="">Chọn Đề tài </option>
+</select>
+
+</select>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

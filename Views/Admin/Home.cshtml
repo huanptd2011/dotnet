@@ -1,0 +1,30 @@
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-success text-center">
+        <h2>Chào mừng, @ViewBag.TenAdmin!</h2>
+        <p>Chào mừng bạn đến với hệ thống quản lý bài viết khoa học.</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Tổng số bài viết</h5>
+                    <p class="card-text">15 bài viết</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Số bài viết hôm nay</h5>
+                    <p class="card-text">2 bài viết</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
