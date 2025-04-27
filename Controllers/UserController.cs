@@ -10,13 +10,14 @@ namespace huan.Controllers
     public class UserController : Controller
     {
         private readonly ApplicationDbContext _context;
-
         public UserController(ApplicationDbContext context) => _context = context;
 
         [HttpGet]
         public IActionResult Register() => View();
+
         [HttpGet]
         public IActionResult Login() => View();
+        
         [HttpGet]
         public IActionResult Index()
         {

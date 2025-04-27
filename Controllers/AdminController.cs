@@ -9,65 +9,30 @@ namespace huan.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
-
         public AdminController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // Trang dashboard (giao diện tổng quan)
-        public IActionResult Dashboard()
-        {
-            return View();
-        }
-        
-        public IActionResult Home()
-        {
-            return View();
-        }
-        // Trang quản lý bài viết của tác giả (Author)
-[HttpGet]
-public IActionResult Index()
-{
-    int? userId = GetUserId();
-    if (userId == null)
-        return RedirectToAction("AccessDenied", "User");
-        var articles = _context.Articles.ToList();
-
-    return View(articles);
-}
+        public IActionResult Dashboard() => View();
 
 
-        // API thống kê (Admin)
+        public IActionResult Home() => View();
+
         [HttpGet]
-        public IActionResult GetDashboardStats()
+        public IActionResult Index()
         {
-            if (!IsAdmin())
-                return Json(new { success = false, message = "Unauthorized" });
+            int? userId = GetUserId();
+            if (userId == null)
+                return RedirectToAction("AccessDenied", "User");
+            var articles = _context.Articles.ToList();
 
-            var stats = new
-            {
-                TotalArticles = _context.Articles.Count(),
-                TotalAuthors = _context.Users.Count(u => u.Role == "Author"),
-                PendingArticles = _context.Articles.Count(a => a.Status == "Pending"),
-                ArticlesByStatus = new
-                {
-                    Approved = _context.Articles.Count(a => a.Status == "Approved"),
-                    Pending = _context.Articles.Count(a => a.Status == "Pending"),
-                    Rejected = _context.Articles.Count(a => a.Status == "Rejected")
-                },
-                ArticlesByTopic = _context.Articles
-                    .GroupBy(a => a.Topic.Name)
-                    .Select(g => new { TopicName = g.Key, Count = g.Count() })
-                    .ToList(),
-                ArticlesByAuthor = _context.Articles
-                    .GroupBy(a => a.Author.FullName)
-                    .Select(g => new { AuthorName = g.Key, Count = g.Count() })
-                    .ToList()
-            };
-
-            return Json(new { success = true, data = stats });
+            return View(articles);
         }
+
+
+        [HttpGet]
+        public IActionResult GetDashboardStats()  => View();
 
         // Duyệt bài viết
         [HttpPost]
@@ -76,10 +41,8 @@ public IActionResult Index()
             var article = _context.Articles.FirstOrDefault(a => a.Id == id);
             if (article == null)
                 return NotFound();
-
             article.Status = "Approved";
             _context.SaveChanges();
-
             return RedirectToAction("Index");
         }
 
@@ -100,38 +63,37 @@ public IActionResult Index()
         }
 
         // Trang thống kê chi tiết
-       [HttpGet]
-public IActionResult Statistics()
-{
-    // Statistics data based on Article model
-    var stats = new
-    {
-        ArticlesByAuthor = _context.Articles
-            .GroupBy(a => a.Author.FullName)
-            .Select(g => new
-            {
-                Author = g.Key,
-                Count = g.Count()
-            })
-            .ToList(),
-        ArticlesByTopic = _context.Articles
-            .GroupBy(a => a.Topic.Id)
-            .Select(g => new
-            {
-                TopicId = g.Key,
-                Count = g.Count()
-            })
-            .ToList(),
-        ArticlesByStatus = new
+        [HttpGet]
+        public IActionResult Statistics()
         {
-            Approved = _context.Articles.Count(a => a.Status == "Approved"),
-            Pending = _context.Articles.Count(a => a.Status == "Pending"),
-            Rejected = _context.Articles.Count(a => a.Status == "Rejected")
-        }
-    };
+            var stats = new
+            {
+                ArticlesByAuthor = _context.Articles
+                    .GroupBy(a => a.Author.FullName)
+                    .Select(g => new
+                    {
+                        Author = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToList(),
+                ArticlesByTopic = _context.Articles
+                    .GroupBy(a => a.Topic.Id)
+                    .Select(g => new
+                    {
+                        TopicId = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToList(),
+                ArticlesByStatus = new
+                {
+                    Approved = _context.Articles.Count(a => a.Status == "Approved"),
+                    Pending = _context.Articles.Count(a => a.Status == "Pending"),
+                    Rejected = _context.Articles.Count(a => a.Status == "Rejected")
+                }
+            };
 
-    return View(stats);
-}
+            return View(stats);
+        }
 
 
         // ======= Helpers =======

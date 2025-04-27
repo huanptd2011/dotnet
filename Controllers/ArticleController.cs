@@ -68,35 +68,15 @@ public IActionResult Create(Article article)
     if (userId == null || HttpContext.Session.GetString("Role") != "Author")
         return RedirectToAction("AccessDenied", "User");
 
-    article.AuthorId = userId.Value ;
-    article.SubmissionDate = DateTime.Now;
-    article.Status = "Pending";
-
-    if (ModelState.IsValid)
-    {
+        article.AuthorId = userId.Value ;
+        article.SubmissionDate = DateTime.Now;
+        article.Status = "Pending";
         var topics = _context.Topics?.ToList() ?? new List<Topic>();
         ViewBag.Topics = new SelectList(topics, "Id", "Name");
-        return View(article);
-    }
-     
-
-    try
-    {
-                Console.WriteLine($"Title: {article.Title}");
-                Console.WriteLine($"TopicId: {article.TopicId}");
-
-                // Hoặc dùng Debug.WriteLine
-                System.Diagnostics.Debug.WriteLine($"Content: {article.Content}");
-                _context.Articles.Add(article);
+        _context.Articles.Add(article);
         _context.SaveChanges();
         return RedirectToAction("Index");
-    }
-    catch (DbUpdateException ex)
-    {
-        TempData["ArticleError"] = "Lỗi khi lưu bài viết. Vui lòng kiểm tra lại dữ liệu.";
-        // Log lỗi ex tại đây
-        return RedirectToAction("Create");
-    }
+
 }
         [HttpGet]
         public IActionResult Edit(int id)
@@ -122,21 +102,13 @@ public IActionResult Create(Article article)
             if (existingArticle == null || existingArticle.Status != "Pending")
                 return RedirectToAction("AccessDenied", "User");
 
-            if (ModelState.IsValid)
-            {
-                // Ensure Topics is always populated in case of form validation errors
-                ViewBag.Topics = _context.Topics.ToList(); // This should never be null
-                return View(article); // Ensure the model is passed back to the view
-            }
-
             existingArticle.Title = article.Title;
             existingArticle.Summary = article.Summary;
             existingArticle.Content = article.Content;
             existingArticle.TopicId = article.TopicId;
-
+            ViewBag.Topics = _context.Topics.ToList(); 
             _context.Articles.Update(existingArticle);
             _context.SaveChanges();
-
             return RedirectToAction("Index");
         }
 
